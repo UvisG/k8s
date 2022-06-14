@@ -1,0 +1,46 @@
+# Run this command to download and install krew: Linux/macOS
+(
+  set -x; cd "$(mktemp -d)" &&
+  OS="$(uname | tr '[:upper:]' '[:lower:]')" &&
+  ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')" &&
+  KREW="krew-${OS}_${ARCH}" &&
+  curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz" &&
+  tar zxvf "${KREW}.tar.gz" &&
+  ./"${KREW}" install krew
+)
+
+# Add the $HOME/.krew/bin directory to your PATH environment variable. To do this, update your .bashrc or .zshrc file and append the following line:
+export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+# and restart your shell.
+
+# Download the plugin list:
+kubectl krew update
+
+# Discover plugins available on Krew:
+kubectl krew search
+
+# Choose a plugin from the list and install it:
+kubectl krew install example
+
+# Use the installed plugin:
+kubectl example
+
+uvis@PLV-PF3CXPR4:$ kubectl example service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  ports:
+    - port: 8000 # the port that this service should serve on
+      # the container on each pod to connect to, can be a name
+      # (e.g. 'www') or a number (e.g. 80)
+      targetPort: 80
+      protocol: TCP
+  # just like the selector in the deployment,
+  # but this time it identifies the set of pods to load balance
+  # traffic to.
+  selector:
+    app: nginx
+uvis@PLV-PF3CXPR4:$
